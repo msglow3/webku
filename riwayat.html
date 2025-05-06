@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Riwayat Transaksi - TOKO IBU IKA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f0f0f0;
+      color: #333;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    .top-member {
+      background: #fff;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .top-member ol {
+      padding-left: 20px;
+    }
+    .top-member li {
+      font-weight: bold;
+      font-size: 16px;
+      margin: 5px 0;
+    }
+    .gold { color: #d4af37; }
+    .silver { color: #888; }
+    .bronze { color: #cd7f32; }
+
+    .table-container {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+    th {
+      background: #f2f2f2;
+    }
+
+    .kembali {
+      margin-top: 30px;
+      text-align: center;
+    }
+    .kembali a {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: bold;
+      display: inline-block;
+      transition: background-color 0.3s;
+    }
+    .kembali a:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Riwayat Transaksi</h1>
+
+  <div class="top-member">
+    <h2>Top 3 Member</h2>
+    <ol id="topList"></ol>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Nama</th>
+          <th>Total</th>
+          <th>Bayar</th>
+          <th>Kembalian</th>
+          <th>Poin</th>
+          <th>Tanggal</th>
+        </tr>
+      </thead>
+      <tbody id="riwayatBody"></tbody>
+    </table>
+  </div>
+
+  <div class="kembali">
+    <a href="index.html">← Kembali ke Beranda</a>
+  </div>
+
+  <script>
+    const data = JSON.parse(localStorage.getItem("transaksiList") || "[]");
+    const tbody = document.getElementById("riwayatBody");
+
+    data.reverse().forEach((item, i) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${i + 1}</td>
+        <td>${item.nama}</td>
+        <td>Rp ${item.total.toLocaleString("id-ID")}</td>
+        <td>Rp ${item.bayar.toLocaleString("id-ID")}</td>
+        <td>Rp ${item.kembalian.toLocaleString("id-ID")}</td>
+        <td>${item.point}</td>
+        <td>${new Date(item.tanggal).toLocaleString("id-ID")}</td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    // Hitung jumlah transaksi per nama
+    const countByNama = {};
+    data.forEach(item => {
+      countByNama[item.nama] = (countByNama[item.nama] || 0) + 1;
+    });
+
+    // Urutkan dan ambil juara 1-3
+    const top3 = Object.entries(countByNama)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3);
+
+    // Tambahkan ikon ke juara
+    const icons = [
+      "🥇", // emas
+      "🥈", // perak
+      "🦆"  // bebek
+    ];
+    const medalClass = ["gold", "silver", "bronze"];
+    const topList = document.getElementById("topList");
+
+    top3.forEach(([nama, count], i) => {
+      const li = document.createElement("li");
+      li.className = medalClass[i];
+      li.innerHTML = `${icons[i]} Juara ${i + 1}: ${nama} (${count} transaksi)`;
+      topList.appendChild(li);
+    });
+  </script>
+
+
+<script type="text/javascript" id="dcoder_script">// Ambil transaksi yang sudah ada
+let transaksiList = JSON.parse(localStorage.getItem("transaksiList") || "[]");
+
+// Buat data transaksi baru
+let transaksiBaru = {
+  harga: parseInt(document.getElementById("harga").value),
+  qty: parseInt(document.getElementById("qty").value),
+  member: document.getElementById("namaMember").value || ""
+};
+
+// Tambahkan ke list
+transaksiList.push(transaksiBaru);
+
+// Simpan kembali ke localStorage
+localStorage.setItem("transaksiList", JSON.stringify(transaksiList));</script></body></html>

@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="id"> 
+ <head> 
+  <meta charset="UTF-8"> 
+  <title>MEMBER TOKO IBU IKA</title> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #f9f9f9; padding: 20px; font-size: 18px; color: #333; }
+    input, select, button {
+      font-size: 18px; margin: 10px 0; padding: 12px; border-radius: 10px;
+      border: 1px solid #ccc; width: 100%; box-sizing: border-box;
+    }
+    button {
+      background-color: #4CAF50; color: white; border: none; cursor: pointer;
+    }
+    button:hover { background-color: #45a049; }
+    button:disabled { background-color: #999; cursor: not-allowed; }
+    table {
+      width: 100%; border-collapse: collapse; margin-top: 16px;
+      font-size: 16px; background-color: white;
+    }
+    th, td {
+      border: 1px solid #ddd; padding: 10px; text-align: left;
+    }
+    th { background-color: #f0f0f0; }
+    .section {
+      background-color: #fff; padding: 16px; border-radius: 10px; margin-bottom: 24px;
+    }
+    h1 { text-align: center; }
+    #keypad {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: white; border-top: 2px solid #ccc; display: none;
+      z-index: 1000; padding: 10px; border-top-left-radius: 20px; border-top-right-radius: 20px;
+    }
+    #keypad .row {
+      display: flex; justify-content: space-between; margin-bottom: 10px;
+    }
+    #keypad button {
+      flex: 1; height: 60px; font-size: 20px; border-radius: 10px;
+      background-color: #4CAF50; border: 1px solid #ccc; margin: 5px;
+      cursor: pointer; color: white;
+    }
+    @media (max-width: 600px) {
+      #keypad button { font-size: 16px; height: 50px; }
+    }
+    #loadingOverlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: white; z-index: 2000; display: flex;
+      align-items: center; justify-content: center; flex-direction: column;
+      font-size: 24px; font-weight: bold; color: #4CAF50;
+    }
+  </style> 
+ </head> 
+ <body>
+ <nav style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+  <a href="#home" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
+    <span style="font-size: 24px;">🏠</span>
+    <strong style="font-size: 20px;">Home</strong>
+  </a>
+ <a href="riwayat.html" style="margin-left:auto; text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px;">
+  <strong style="font-size: 20px;">Riwayat</strong>
+  <span style="font-size: 24px;">🕘</span>
+</a>
+</nav>
+
+  <div id="loadingOverlay">
+    <div>TUNGGU SEBENTAR</div>
+    <div id="loadingProgress">0%</div>
+  </div>
+
+  <h1 id="home">MEMBER TOKO IBU IKA</h1>
+  <div class="section"> 
+   <h2>Tambah Member</h2> 
+   <input id="inputNamaBaru" placeholder="Nama member baru"> <button onclick="tambahMember()">Tambah Member</button> 
+  </div> 
+  <div class="section"> 
+   <h2>Hapus Member</h2> <select id="hapusNamaMember"></select> <button onclick="hapusMember()">Hapus Member</button> 
+  </div> 
+  <div class="section"> 
+   <h2>Transaksi POS</h2> <select id="posNamaMember"></select> 
+   <input id="hargaBarang" placeholder="Harga" readonly onclick="showKeypad('hargaBarang')"> 
+   <input id="qtyBarang" placeholder="Qty" readonly onclick="showKeypad('qtyBarang')"> <button onclick="tambahBarang()" id="btnTambah">Tambah</button> 
+   <input id="uangBayar" placeholder="Uang Bayar" readonly onclick="showKeypad('uangBayar')"> <button id="btnBayar" onclick="batasKlikBayar()">Bayar</button> 
+   <table id="tabelPOS"> 
+    <thead> 
+     <tr>
+      <th>Harga</th>
+      <th>Qty</th>
+      <th>Subtotal</th>
+      <th>Aksi</th>
+     </tr> 
+    </thead> 
+    <tbody></tbody> 
+   </table> 
+   <p><strong>Total:</strong> <span id="totalBelanja">Rp 0</span></p> 
+   <p id="hasilKembalian"></p> 
+  </div> 
+  <div class="section"> 
+   <h2>Hasil Bayar Terakhir</h2> <button onclick="tampilkanBayarTerakhir()">Lihat</button> 
+   <div id="rekapTerakhir"></div> 
+  </div> 
+  <div class="section"> 
+   <h2>Backup Transaksi</h2> <button onclick="backupTransaksi()">Backup (CSV)</button> 
+  </div> 
+  <div id="keypad"> 
+   <div class="row"> <button onclick="clearInput()">C</button> <button onclick="inputDigit(8)">8</button> <button onclick="inputDigit(9)">9</button> 
+   </div> 
+   <div class="row"> <button onclick="inputDigit(4)">4</button> <button onclick="inputDigit(5)">5</button> <button onclick="inputDigit(6)">6</button> 
+   </div> 
+   <div class="row"> <button onclick="inputDigit(1)">1</button> <button onclick="inputDigit(2)">2</button> <button onclick="inputDigit(3)">3</button> 
+   </div> 
+   <div class="row"> <button onclick="inputDigit(0)">0</button> <button onclick="inputDigit('00')">00</button> <button onclick="inputDigit(7)">7</button> 
+   </div> 
+   <div class="row"> <button onclick="enterAmount()">Enter</button> <button onclick="keluarKeypad()">Keluar</button> 
+   </div> 
+  </div> 
+  <script>
+    let loading = 0;
+    const loadingInterval = setInterval(() => {
+      loading++;
+      document.getElementById("loadingProgress").textContent = loading + "%";
+      if (loading >= 100) {
+        clearInterval(loadingInterval);
+        document.getElementById("loadingOverlay").style.display = "none";
+      }
+    }, 20);
+
+    let currentInputField = '', currentInputValue = '';
+    const memberKey = "daftarMember", transaksiKey = "transaksiList";
+    const getMembers = () => JSON.parse(localStorage.getItem(memberKey) || "[]");
+    const saveMembers = (list) => localStorage.setItem(memberKey, JSON.stringify(list));
+    const getTransaksi = () => JSON.parse(localStorage.getItem(transaksiKey) || "[]");
+    const saveTransaksi = (list) => localStorage.setItem(transaksiKey, JSON.stringify(list));
+
+    function tambahMember() {
+      const nama = document.getElementById("inputNamaBaru").value.trim();
+      if (nama) {
+        const list = getMembers();
+        if (!list.includes(nama)) {
+          list.push(nama);
+          saveMembers(list);
+          muatSelectMember();
+        }
+        document.getElementById("inputNamaBaru").value = "";
+      }
+    }
+
+    function hapusMember() {
+      const nama = document.getElementById("hapusNamaMember").value;
+      let list = getMembers();
+      list = list.filter(n => n !== nama);
+      saveMembers(list);
+      muatSelectMember();
+    }
+
+    function muatSelectMember() {
+      const list = getMembers();
+      const selects = [document.getElementById("hapusNamaMember"), document.getElementById("posNamaMember")];
+      selects.forEach(sel => sel.innerHTML = list.map(n => `<option>${n}</option>`).join(""));
+    }
+
+    function showKeypad(fieldId) {
+      currentInputField = fieldId;
+      currentInputValue = "";
+      document.getElementById("keypad").style.display = "block";
+    }
+
+    function clearInput() { currentInputValue = ""; updateInput(); }
+    function inputDigit(val) { currentInputValue += val.toString(); updateInput(); }
+    function updateInput() {
+      const field = document.getElementById(currentInputField);
+      let angka = currentInputValue.replace(/\D/g, "");
+      field.value = formatRupiah(angka);
+    }
+    function enterAmount() { keluarKeypad(); }
+    function keluarKeypad() { document.getElementById("keypad").style.display = "none"; }
+    function formatRupiah(angka) {
+      return "Rp " + angka.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    let keranjang = [];
+
+    function tambahBarang() {
+      const harga = parseInt(document.getElementById("hargaBarang").value.replace(/\D/g, ""));
+      const qty = parseInt(document.getElementById("qtyBarang").value.replace(/\D/g, ""));
+      if (harga && qty) {
+        keranjang.push({harga, qty});
+        renderTabel();
+      }
+      document.getElementById("hargaBarang").value = "";
+      document.getElementById("qtyBarang").value = "";
+    }
+
+    function renderTabel() {
+      const tbody = document.querySelector("#tabelPOS tbody");
+      tbody.innerHTML = "";
+      let total = 0;
+      keranjang.forEach((item, index) => {
+        const subtotal = item.harga * item.qty;
+        total += subtotal;
+        tbody.innerHTML += `<tr><td>${formatRupiah(item.harga.toString())}</td><td>${item.qty}</td><td>${formatRupiah(subtotal.toString())}</td><td><button onclick="hapusItem(${index})">Hapus</button></td></tr>`;
+      });
+      document.getElementById("totalBelanja").textContent = formatRupiah(total.toString());
+      document.getElementById("btnBayar").textContent = `Bayar (${formatRupiah(total.toString())})`;
+      document.getElementById("btnTambah").textContent = `Tambah (${formatRupiah(total.toString())})`;
+    }
+
+    function hapusItem(i) {
+      keranjang.splice(i, 1);
+      renderTabel();
+    }
+
+    let transaksiBeruntun = 0, timeoutAktif = false, nomorUrutPerMember = {};
+
+    function batasKlikBayar() {
+      const btn = document.getElementById("btnBayar");
+      if (timeoutAktif) {
+        alert('Tunggu 20 detik karena terlalu banyak transaksi.');
+        return;
+      }
+      transaksiBeruntun++;
+      if (transaksiBeruntun >= 8) {
+        timeoutAktif = true;
+        btn.disabled = true;
+        alert('Terlalu banyak transaksi berturut-turut! Harap tunggu 20 detik.');
+        setTimeout(() => {
+          transaksiBeruntun = 0;
+          timeoutAktif = false;
+          btn.disabled = false;
+        }, 20000);
+      }
+      prosesBayar();
+    }
+
+    function prosesBayar() {
+      const nama = document.getElementById("posNamaMember").value;
+      const bayar = parseInt(document.getElementById("uangBayar").value.replace(/\D/g, ""));
+      const total = keranjang.reduce((a, b) => a + (b.harga * b.qty), 0);
+      const kembalian = bayar - total;
+      const poin = Math.floor(total / 10000);
+      const nilaiPoin = poin * 40;
+
+      if (bayar >= total) {
+        if (!nomorUrutPerMember[nama]) nomorUrutPerMember[nama] = 1;
+        else nomorUrutPerMember[nama]++;
+        const transaksi = getTransaksi();
+        transaksi.push({ nama, total, bayar, kembalian, point: poin, tanggal: new Date().toISOString(), items: keranjang });
+        saveTransaksi(transaksi);
+        document.getElementById("hasilKembalian").textContent = `Kembalian: ${formatRupiah(kembalian.toString())}, Poin: ${poin} (setara ${formatRupiah(nilaiPoin.toString())})`;
+        const detail = keranjang.map((item, idx) => {
+          const subtotal = item.harga * item.qty;
+          return `${idx + 1}. ${item.qty} x ${formatRupiah(item.harga.toString())} = ${formatRupiah(subtotal.toString())}`;
+        }).join('\n');
+        const pesan = `*TOKO IBU IKA*\nMember: ${nama}\nNo: ${nomorUrutPerMember[nama]}\n\n${detail}\n\nTotal: ${formatRupiah(total.toString())}\nBayar: ${formatRupiah(bayar.toString())}\nKembali: ${formatRupiah(kembalian.toString())}\nPoin: ${poin} (setara ${formatRupiah(nilaiPoin.toString())})`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(pesan)}`, '_blank');
+        keranjang = [];
+        renderTabel();
+        document.getElementById("uangBayar").value = "";
+        tampilkanBayarTerakhir();
+      } else {
+        alert("Uang bayar kurang!");
+      }
+    }
+
+    function tampilkanBayarTerakhir() {
+      const data = getTransaksi().slice(-1)[0];
+      if (!data) return;
+      let html = `<p>Nama: ${data.nama}</p><p>Total: ${formatRupiah(data.total.toString())}</p><p>Bayar: ${formatRupiah(data.bayar.toString())}</p><p>Kembali: ${formatRupiah(data.kembalian.toString())}</p><p>Poin: ${data.point}</p><table><tr><th>Harga</th><th>Qty</th><th>Subtotal</th></tr>`;
+      data.items.forEach(i => html += `<tr><td>${formatRupiah(i.harga.toString())}</td><td>${i.qty}</td><td>${formatRupiah((i.harga*i.qty).toString())}</td></tr>`);
+      html += `</table>`;
+      document.getElementById("rekapTerakhir").innerHTML = html;
+    }
+
+    function backupTransaksi() {
+  const data = getTransaksi();
+  const rows = [["Nama", "Tanggal", "Total", "Bayar", "Kembali", "Poin", "Peroleh (Rp)", "Detail"]];
+  data.forEach(t => {
+    const peroleh = t.point * 40;
+    rows.push([
+      t.nama, t.tanggal, t.total, t.bayar, t.kembalian, t.point,
+      peroleh, t.items.map(i => `${i.qty}x${i.harga}`).join(" | ")
+    ]);
+  });
+  const csv = rows.map(r => r.join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `backup_${new Date().toISOString().split("T")[0]}.csv`;
+  link.click();
+}
+
+    muatSelectMember();
+  </script> 
+  <p style="text-align:center; margin-top: 40px; color: #888;">Created by <strong>Devputrachins</strong></p> 
+ 
+</body></html>
